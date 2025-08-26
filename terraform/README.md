@@ -188,6 +188,9 @@ $env:GOOGLE_APPLICATION_CREDENTIALS="$HOME\terraform-sa.json"
 <summary><strong>🐧 Ubuntu</strong></summary>
 
 ```bash
+# Verificar si se encuentra logeado a GCP (se abria una pestaña para que ingrese las credenciales)
+gcloud auth login
+
 # 1️⃣ Configurar proyecto activo
 gcloud config set project <TU_PROJECT_ID>
 
