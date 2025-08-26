@@ -157,8 +157,8 @@ git clone git@github.com:xfelp/devops-learning-hub.git
 gcloud auth login
 # Se abria una pestaña de tu navegador para que ingreses las credenciales.
 
-# 1️⃣ Configurar proyecto activo
-gcloud config set project <TU_PROJECT_ID>
+# 1️⃣ Configurar proyecto activo (recuerda que tu proyecto debe tener uan cuenta de facturación vinculada)
+gcloud config set project <TU_PROJECT_ID> 
 
 # 2️⃣ Crear Service Account
 gcloud iam service-accounts create terraform-sa --display-name "Terraform Service Account"
@@ -191,7 +191,7 @@ $env:GOOGLE_APPLICATION_CREDENTIALS="$HOME\terraform-sa.json"
 # Verificar si se encuentra logeado a GCP (se abria una pestaña para que ingrese las credenciales)
 gcloud auth login
 
-# 1️⃣ Configurar proyecto activo
+# 1️⃣ Configurar proyecto activo  (recuerda que tu proyecto debe tener uan cuenta de facturación vinculada)
 gcloud config set project <TU_PROJECT_ID>
 
 # 2️⃣ Crear Service Account
