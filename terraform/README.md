@@ -106,7 +106,7 @@ terraform -version
 En Windows, verifica que te encuentres autentificado en github.com, y luego ejecuta el siguiente comando por powershell:
 
 ```powershell
-https://github.com/xfelp/devops-learning-hub.git
+git clone https://github.com/xfelp/devops-learning-hub.git
 ```
 
 En Ubuntu, sigue las siguientes indicaciones:
