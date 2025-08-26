@@ -212,6 +212,7 @@ echo 'export GOOGLE_APPLICATION_CREDENTIALS="$HOME/terraform-sa.json"' >> ~/.bas
 
 **⚠️ Ejecutar una sola vez:**
 
+En windows:
 ```Windows powershell
 gcloud config set project <TU_PROJECT_ID>
 gcloud services enable `
@@ -220,7 +221,7 @@ gcloud services enable `
   iam.googleapis.com `
   compute.googleapis.com
 ```
-
+En Ubuntu:
 ```Ubuntu bash
 gcloud services enable cloudresourcemanager.googleapis.com serviceusage.googleapis.com iam.googleapis.com compute.googleapis.com
 ```
