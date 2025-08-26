@@ -40,6 +40,12 @@ Al completar este lab habrás aprendido:
 
 #### Ubuntu
 - Instala el paquete `google-cloud-cli` o usa el script oficial
+```bash
+  curl -sSL https://sdk.cloud.google.com | bash
+  exec -l $SHELL
+  gcloud version
+  gcloud init
+```
 
 **✅ Verificación de instalación:**
 ```bash
@@ -76,6 +82,16 @@ choco install terraform -y
 📚 **Guía oficial**: https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
 
 O usar los repositorios oficiales de HashiCorp con `apt`.
+
+```bash
+sudo apt-get update && sudo apt-get install -y gnupg ca-certificates curl && \
+curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && \
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(. /etc/os-release && echo $VERSION_CODENAME) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list >/dev/null && \
+sudo apt-get update && sudo apt-get install -y terraform && \
+terraform -version
+```
+
 </details>
 
 **✅ Verificación de instalación:**
@@ -87,9 +103,29 @@ terraform -version
 
 ## 📥 Clonar el Repositorio
 
+En Windows, verifica que te encuentres autentificado en github.com, y luego ejecuta el siguiente comando por powershell:
+
+```powershell
+https://github.com/xfelp/devops-learning-hub.git
+```
+
+En Ubuntu, sigue las siguientes indicaciones:
+
+Recuerda usar la clave SSH que creamos en el laboratorio anterior para el login de github.
+
+Lista tus claves públicas (la que termina en .pub es la que se sube a GitHub)
 ```bash
-git clone https://github.com/xfelp/devops-learning-hub-terraform-vm.git
-cd devops-learning-hub-terraform-vm
+ls -l ~/.ssh/*.pub
+```
+
+Inicia el agente (si no está corriendo) y agrega tu clave privada
+```bash
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519    # o ~/.ssh/id_rsa si esa es tu clave
+```
+
+```bash
+git clone git@github.com:xfelp/devops-learning-hub.git
 ```
 
 ### 📂 Estructura del Proyecto
@@ -99,7 +135,6 @@ cd devops-learning-hub-terraform-vm
 ├── 📄 main.tf          # Configuración principal de recursos
 ├── 📄 variables.tf     # Variables parametrizables
 ├── 📄 outputs.tf       # Información que mostrar después del deploy
-├── 📄 terraform.tfvars.example  # Ejemplo de valores para variables
 └── 📄 README.md        # Esta guía
 ```
 
@@ -118,17 +153,22 @@ cd devops-learning-hub-terraform-vm
 <summary><strong>🪟 Windows (PowerShell)</strong></summary>
 
 ```powershell
+# Recuerda estar logeado en tu cuenta de GCP, lo puedes hacer mediante el siguiente comando:
+gcloud auth login
+# Se abria una pestaña de tu navegador para que ingreses las credenciales.
+
 # 1️⃣ Configurar proyecto activo
 gcloud config set project <TU_PROJECT_ID>
 
 # 2️⃣ Crear Service Account
 gcloud iam service-accounts create terraform-sa --display-name "Terraform Service Account"
 
-# 3️⃣ Crear la llave JSON
+# 3️⃣ Crear la llave JSON 
 gcloud iam service-accounts keys create "$HOME\terraform-sa.json" `
   --iam-account "terraform-sa@<TU_PROJECT_ID>.iam.gserviceaccount.com"
 
 # 4️⃣ Asignar roles mínimos
+
 $SA="serviceAccount:terraform-sa@<TU_PROJECT_ID>.iam.gserviceaccount.com"
 $PROJECT="<TU_PROJECT_ID>"
 gcloud projects add-iam-policy-binding $PROJECT --member=$SA --role=roles/compute.admin
@@ -136,6 +176,7 @@ gcloud projects add-iam-policy-binding $PROJECT --member=$SA --role=roles/iam.se
 gcloud projects add-iam-policy-binding $PROJECT --member=$SA --role=roles/serviceusage.serviceUsageAdmin
 
 # 5️⃣ Configurar variable de entorno (sesión actual)
+
 $env:GOOGLE_APPLICATION_CREDENTIALS="$HOME\terraform-sa.json"
 
 # 6️⃣ Configurar variable de entorno (permanente)
@@ -179,6 +220,11 @@ gcloud services enable `
   iam.googleapis.com `
   compute.googleapis.com
 ```
+
+```bash
+gcloud services enable cloudresourcemanager.googleapis.com serviceusage.googleapis.com iam.googleapis.com compute.googleapis.com
+```
+
 
 > ⏰ **Importante**: Espera 1-2 minutos para que las APIs se propaguen antes del `terraform apply`.
 
