@@ -54,7 +54,7 @@ PY
     stage('Init & Validate') {
       steps {
         dir('jenkins/terraform-jenkins-vm') {
-          withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
+          withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
             sh '''
               set -e
               cat > .ci_init.sh <<'BASH'
@@ -75,7 +75,7 @@ PY
     stage('Plan') {
       steps {
         dir('jenkins/terraform-jenkins-vm') {
-          withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
+          withCredentials([file(credentialsId: 'gcp-service-account-key', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
             sh '''
               set -e
               cat > .ci_plan.sh <<'BASH'
