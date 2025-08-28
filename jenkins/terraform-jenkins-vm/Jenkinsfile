@@ -2,7 +2,7 @@ pipeline {
   agent any
   options {
     timestamps()
-    // Si tienes el plugin AnsiColor y quieres color de consola:
+    // Si instalas el plugin AnsiColor, puedes envolver la consola con:
     // wrap([$class: 'AnsiColorBuildWrapper', colorMapName: 'xterm'])
   }
   environment {
@@ -17,10 +17,12 @@ pipeline {
     stage('Terraform CLI') {
       steps {
         sh '''
-          bash -euxo pipefail <<'BASH'
-          TF_DIR="$WORKSPACE/.tf-bin"
+          set -e
+          cat > .ci_tfcli.sh <<'BASH'
+          set -euo pipefail
+          TF_DIR="$WORKSPACE/.tf-bin"; export TF_DIR
           TF_BIN="$TF_DIR/terraform"
-          VER="1.6.6"
+          VER="1.6.6"; export VER
 
           mkdir -p "$TF_DIR"
           if [ ! -x "$TF_BIN" ]; then
@@ -30,16 +32,21 @@ pipeline {
             elif command -v jar >/dev/null 2>&1; then
               (cd "$TF_DIR" && jar xf "$WORKSPACE/terraform_${VER}_linux_amd64.zip")
             else
-              python3 - <<'PY'
-import os, zipfile
-zipfile.ZipFile(os.path.join(os.environ['WORKSPACE'], f"terraform_{os.environ.get('VER','1.6.6')}_linux_amd64.zip")).extractall(os.environ['TF_DIR'])
+              # Fallback sin unzip/jar: usar python3 para extraer el zip
+              python3 - "$TF_DIR" "$WORKSPACE" "$VER" <<'PY'
+import sys, os, zipfile
+tf_dir, ws, ver = sys.argv[1:]
+fn = os.path.join(ws, f"terraform_{ver}_linux_amd64.zip")
+zipfile.ZipFile(fn).extractall(tf_dir)
 PY
             fi
             chmod +x "$TF_DIR/terraform"
           fi
 
-          "$TF_DIR/terraform" -version
+          export PATH="$TF_DIR:$PATH"
+          terraform -version
           BASH
+          bash ./.ci_tfcli.sh
         '''
       }
     }
@@ -49,13 +56,16 @@ PY
         dir('jenkins/terraform-jenkins-vm') {
           withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
             sh '''
-              bash -euxo pipefail <<'BASH'
+              set -e
+              cat > .ci_init.sh <<'BASH'
+              set -euo pipefail
               export PATH="$WORKSPACE/.tf-bin:$PATH"
               export GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_CLOUD_KEYFILE_JSON"
 
               terraform init -input=false -upgrade
               terraform validate
               BASH
+              bash ./.ci_init.sh
             '''
           }
         }
@@ -67,12 +77,15 @@ PY
         dir('jenkins/terraform-jenkins-vm') {
           withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
             sh '''
-              bash -euxo pipefail <<'BASH'
+              set -e
+              cat > .ci_plan.sh <<'BASH'
+              set -euo pipefail
               export PATH="$WORKSPACE/.tf-bin:$PATH"
               export GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_CLOUD_KEYFILE_JSON"
 
               terraform plan -input=false -out=tfplan -compact-warnings
               BASH
+              bash ./.ci_plan.sh
             '''
           }
         }
@@ -92,13 +105,16 @@ PY
         dir('jenkins/terraform-jenkins-vm') {
           withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
             sh '''
-              bash -euxo pipefail <<'BASH'
+              set -e
+              cat > .ci_apply.sh <<'BASH'
+              set -euo pipefail
               export PATH="$WORKSPACE/.tf-bin:$PATH"
               export GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_CLOUD_KEYFILE_JSON"
 
               terraform apply -input=false -auto-approve tfplan
               terraform output || true
               BASH
+              bash ./.ci_apply.sh
             '''
           }
         }
@@ -109,10 +125,13 @@ PY
     always {
       dir('jenkins/terraform-jenkins-vm') {
         sh '''
-          bash -euxo pipefail <<'BASH'
+          set -e
+          cat > .ci_post.sh <<'BASH'
+          set -euo pipefail
           export PATH="$WORKSPACE/.tf-bin:$PATH"
           terraform output -json > tf-outputs.json || true
           BASH
+          bash ./.ci_post.sh
         '''
         archiveArtifacts artifacts: 'tf-outputs.json', onlyIfSuccessful: false, fingerprint: true
       }
