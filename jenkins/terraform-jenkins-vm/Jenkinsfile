@@ -1,0 +1,93 @@
+pipeline {
+  agent any
+  options {
+    timestamps()
+    ansiColor('xterm')
+  }
+  environment {
+    TF_IN_AUTOMATION = 'true'
+    TF_INPUT = '0'
+  }
+  stages {
+    stage('Checkout') {
+      steps { checkout scm }
+    }
+
+    stage('Terraform CLI') {
+      steps {
+        sh '''
+          set -euxo pipefail
+          if ! command -v terraform >/dev/null 2>&1; then
+            VER=1.6.6
+            curl -fsSLO https://releases.hashicorp.com/terraform/${VER}/terraform_${VER}_linux_amd64.zip
+            unzip -o terraform_${VER}_linux_amd64.zip
+            sudo mv -f terraform /usr/local/bin/
+          fi
+          terraform -version
+        '''
+      }
+    }
+
+    stage('Init & Validate') {
+      steps {
+        dir('jenkins/terraform-jenkins-vm') {
+          withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
+            sh '''
+              set -euxo pipefail
+              export GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_CLOUD_KEYFILE_JSON"
+              terraform init -input=false -upgrade
+              terraform validate
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Plan') {
+      steps {
+        dir('jenkins/terraform-jenkins-vm') {
+          withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
+            sh '''
+              set -euxo pipefail
+              export GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_CLOUD_KEYFILE_JSON"
+              terraform plan -input=false -out=tfplan -compact-warnings
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Manual Approval') {
+      steps {
+        timeout(time: 15, unit: 'MINUTES') {
+          input message: '¿Aplicar los cambios de Terraform?', ok: 'Aplicar'
+        }
+      }
+    }
+
+    stage('Apply') {
+      steps {
+        dir('jenkins/terraform-jenkins-vm') {
+          withCredentials([file(credentialsId: 'gcp-sa-json', variable: 'GOOGLE_CLOUD_KEYFILE_JSON')]) {
+            sh '''
+              set -euxo pipefail
+              export GOOGLE_APPLICATION_CREDENTIALS="$GOOGLE_CLOUD_KEYFILE_JSON"
+              terraform apply -input=false -auto-approve tfplan
+              terraform output || true
+            '''
+          }
+        }
+      }
+    }
+  }
+  post {
+    always {
+      dir('jenkins/terraform-jenkins-vm') {
+        sh '''
+          terraform output -json > tf-outputs.json || true
+        '''
+        archiveArtifacts artifacts: 'tf-outputs.json', onlyIfSuccessful: false, fingerprint: true
+      }
+    }
+  }
+}
