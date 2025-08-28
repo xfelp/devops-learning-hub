@@ -50,7 +50,7 @@ Al completar este lab habrás dominado:
 ## 📂 Estructura del Proyecto
 
 ```
-📁 devops-jenkins-terraform-pipeline/
+📁 jenkins/
 ├── 📁 terraform-jenkins-vm/           # Código para crear VM Jenkins
 │   ├── 📄 main.tf                    # Configuración principal
 │   ├── 📄 variables.tf               # Variables personalizables
@@ -222,6 +222,12 @@ gcloud iam service-accounts keys create ~/jenkins-sa-key.json \
 
 echo "✅ Service Account creado: $SA_EMAIL"
 echo "🔑 Clave guardada en: ~/jenkins-sa-key.json"
+
+# LE decimos a terraform dodne esto JSON
+export GOOGLE_APPLICATION_CREDENTIALS="$HOME/jenkins-sa-key.json"
+test -f "$GOOGLE_APPLICATION_CREDENTIALS" && echo "OK JSON: $GOOGLE_APPLICATION_CREDENTIALS" || echo "NO EXISTE"
+
+
 ```
 </details>
 
