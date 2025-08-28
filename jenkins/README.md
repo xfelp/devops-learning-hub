@@ -4,7 +4,7 @@
 ![Terraform](https://img.shields.io/badge/Terraform-623CE4?style=for-the-badge&logo=terraform&logoColor=white)
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
 ![Pipeline](https://img.shields.io/badge/CI%2FCD-Pipeline-orange?style=for-the-badge)
-![Level](https://img.shields.io/badge/Nivel-Intermedio-yellow?style=for-the-badge)
+![Level](https://img.shields.io/badge/Nivel-Principiante-green?style=for-the-badge)
 
 > 🎯 **Objetivo**: Automatiza el despliegue de infraestructura con Jenkins y Terraform. Crea pipelines CI/CD completos para Infrastructure as Code en Google Cloud Platform.
 
@@ -13,7 +13,7 @@
 ## 📋 Prerequisites - Requisitos Previos
 
 ### ✅ **Conocimientos Necesarios:**
-- 🔧 Terraform básico ([completar lab anterior](https://github.com/xfelp/devops-learning-hub-terraform-vm))
+- 🔧 Terraform básico ([completar lab anterior](https://github.com/xfelp/devops-learning-hub/tree/main/terraform))
 - 🐧 Línea de comandos (Bash/PowerShell)
 - 📦 Git básico
 - ☁️ Google Cloud Platform conceptos
@@ -37,8 +37,8 @@
 
 Al completar este lab habrás dominado:
 - 🔄 **CI/CD para Infraestructura**: Pipelines automatizados con Jenkins
-- 🏗️ **Infrastructure as Code Avanzado**: Terraform en entornos de producción
-- 📦 **GitOps**: Git como fuente de verdad para tu infraestructura
+- 🏗️ **Infrastructure as Code**: Terraform en entornos de producción
+- 📦 **GitOps**: Git como fuente para tu infraestructura
 - 🔐 **DevOps Security**: Service Accounts y gestión segura de credenciales
 - 📊 **Pipeline as Code**: Jenkinsfile y configuración declarativa
 - 🚀 **Automatización Completa**: Desde push hasta deploy sin intervención manual
@@ -86,8 +86,8 @@ Al completar este lab habrás dominado:
 
 ```powershell
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/devops-jenkins-terraform-pipeline.git
-cd devops-jenkins-terraform-pipeline
+git clone https://github.com/xfelp/devops-learning-hub.git
+cd devops-learning-hub
 
 # Verificar estructura
 Get-ChildItem -Recurse -Name
@@ -99,8 +99,8 @@ Get-ChildItem -Recurse -Name
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/devops-jenkins-terraform-pipeline.git
-cd devops-jenkins-terraform-pipeline
+git clone https://github.com/xfelp/devops-learning-hub.git
+cd devops-learning-hub
 
 # Verificar estructura
 find . -type f -name "*.tf" -o -name "*.sh" | head -10
