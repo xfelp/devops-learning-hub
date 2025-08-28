@@ -1,0 +1,13 @@
+# Terraform
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+
+# Credenciales sensibles
+*.json
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
